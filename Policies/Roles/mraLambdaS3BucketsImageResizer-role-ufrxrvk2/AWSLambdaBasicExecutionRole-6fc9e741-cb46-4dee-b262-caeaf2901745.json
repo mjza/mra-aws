@@ -1,0 +1,41 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "logs:CreateLogGroup",
+            "Resource": "arn:aws:logs:us-east-2:585917256973:*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+                "arn:aws:logs:us-east-2:585917256973:log-group:/aws/lambda/mraLambdaS3BucketsImageResizer:*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:GetObjectTagging",
+                "s3:PutObjectTagging",
+                "s3:PutObjectAcl",
+                "s3:ListBucket",
+                "s3:DeleteObject",
+                "tag:TagResources"
+            ],
+            "Resource": [
+                "arn:aws:s3:::mra-public-bucket/*",
+                "arn:aws:s3:::mra-public-bucket/**/*",
+                "arn:aws:s3:::mra-public-bucket/",
+                "arn:aws:s3:::mra-private-bucket/*",
+                "arn:aws:s3:::mra-private-bucket/**/*",
+                "arn:aws:s3:::mra-private-bucket/"
+            ]
+        }
+    ]
+}

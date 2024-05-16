@@ -1,0 +1,51 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowImageAudioVideoFiles",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": [
+                "arn:aws:s3:::mra-public-bucket/*.jpeg",
+                "arn:aws:s3:::mra-public-bucket/*.jpg",
+                "arn:aws:s3:::mra-public-bucket/*.png",
+                "arn:aws:s3:::mra-public-bucket/*.gif",
+                "arn:aws:s3:::mra-public-bucket/*.bmp",
+                "arn:aws:s3:::mra-public-bucket/*.svg",
+                "arn:aws:s3:::mra-public-bucket/*.webp",
+                "arn:aws:s3:::mra-public-bucket/*.heif",
+                "arn:aws:s3:::mra-public-bucket/*.heic",
+                "arn:aws:s3:::mra-public-bucket/*.mp3",
+                "arn:aws:s3:::mra-public-bucket/*.aac",
+                "arn:aws:s3:::mra-public-bucket/*.wav",
+                "arn:aws:s3:::mra-public-bucket/*.ogg",
+                "arn:aws:s3:::mra-public-bucket/*.flac",
+                "arn:aws:s3:::mra-public-bucket/*.mp4",
+                "arn:aws:s3:::mra-public-bucket/*.webm",
+                "arn:aws:s3:::mra-public-bucket/*.mov",
+                "arn:aws:s3:::mra-public-bucket/*.avi",
+                "arn:aws:s3:::mra-public-bucket/*.mkv",
+                "arn:aws:s3:::mra-public-bucket/**/*.jpeg",
+                "arn:aws:s3:::mra-public-bucket/**/*.jpg",
+                "arn:aws:s3:::mra-public-bucket/**/*.png",
+                "arn:aws:s3:::mra-public-bucket/**/*.gif",
+                "arn:aws:s3:::mra-public-bucket/**/*.bmp",
+                "arn:aws:s3:::mra-public-bucket/**/*.svg",
+                "arn:aws:s3:::mra-public-bucket/**/*.webp",
+                "arn:aws:s3:::mra-public-bucket/**/*.heif",
+                "arn:aws:s3:::mra-public-bucket/**/*.heic",
+                "arn:aws:s3:::mra-public-bucket/**/*.mp3",
+                "arn:aws:s3:::mra-public-bucket/**/*.aac",
+                "arn:aws:s3:::mra-public-bucket/**/*.wav",
+                "arn:aws:s3:::mra-public-bucket/**/*.ogg",
+                "arn:aws:s3:::mra-public-bucket/**/*.flac",
+                "arn:aws:s3:::mra-public-bucket/**/*.mp4",
+                "arn:aws:s3:::mra-public-bucket/**/*.webm",
+                "arn:aws:s3:::mra-public-bucket/**/*.mov",
+                "arn:aws:s3:::mra-public-bucket/**/*.avi",
+                "arn:aws:s3:::mra-public-bucket/**/*.mkv"
+            ]
+        }
+    ]
+}
