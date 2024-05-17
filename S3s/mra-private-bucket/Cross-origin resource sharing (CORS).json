@@ -1,0 +1,18 @@
+[
+    {
+        "AllowedHeaders": [
+            "*"
+        ],
+        "AllowedMethods": [
+            "PUT",
+            "GET"
+        ],
+        "AllowedOrigins": [
+            "http://localhost:2583",
+            "https://myreportapp.com",
+            "https://myreport.app"
+        ],
+        "ExposeHeaders": [],
+        "MaxAgeSeconds": 3000
+    }
+]
