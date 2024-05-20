@@ -1,8 +1,7 @@
 {
-  "name": "mralambdas3bucketsimageresizer",
+  "name": "nodejs",
   "version": "1.0.0",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,7 +10,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "aws-sdk": "^2.1622.0",
     "sharp": "^0.33.4"
   }
 }
