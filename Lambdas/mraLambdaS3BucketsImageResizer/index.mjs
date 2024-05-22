@@ -1,7 +1,8 @@
 /**
  * @version: 3rd version
- * 1-   Create `-xs` to `-xl` images immediately in S3 by visiting a `-org` file, and later process and update their content.
- * 2-   Implement the "Update S3 Object Metadata" for all images, including the `-org` image, to detect their processing status.
+ * 0- Run all resizing tasks in promise to compare performance. 
+ * 1- Create `-xs` to `-xl` images immediately in S3 by visiting a `-org` file, and later process and update their content.
+ * 2- Implement the "Update S3 Object Metadata" for all images, including the `-org` image, to detect their processing status.
  */
 import AWS from 'aws-sdk';
 import sharp from 'sharp';
@@ -52,6 +53,9 @@ export const handler = async (event) => {
   ];
 
   try {
+    const originalImage = await S3.getObject({ Bucket: bucketName, Key: key }).promise();
+    const image = sharp(originalImage.Body);
+
     // Get user-defined metadata
     const originalMetadata = await S3.headObject({ Bucket: bucketName, Key: key }).promise();
     const userDefinedMetadata = originalMetadata.Metadata;
@@ -59,10 +63,14 @@ export const handler = async (event) => {
     // Update metadata for the original image
     await updateMetadata(bucketName, key, { ...userDefinedMetadata, status: 'processing' });
 
-    // Create placeholder files immediately
-    const placeholderTasks = resolutions.map(({ suffix, tag }) => {
+    // Get existing tags
+    const tags = await S3.getObjectTagging({ Bucket: bucketName, Key: key }).promise();
+    const existingTags = tags.TagSet || [];
+
+    for (const { suffix, width, tag } of resolutions) {
+      // Create placeholder files immediately
       const newKey = key.replace(orgSuffix, `${suffix}.`).replace(/\.[^.]+$/, '.webp');
-      return S3.putObject({
+      await S3.putObject({
         Bucket: bucketName,
         Key: newKey,
         Body: '',
@@ -74,21 +82,8 @@ export const handler = async (event) => {
           'org-image-key': key
         }
       }).promise();
-    });
 
-    await Promise.all(placeholderTasks);
-    
-    // Get the original image data
-    const originalImage = await S3.getObject({ Bucket: bucketName, Key: key }).promise();
-    const image = sharp(originalImage.Body);
-
-    // Get existing tags
-    const tags = await S3.getObjectTagging({ Bucket: bucketName, Key: key }).promise();
-    const existingTags = tags.TagSet || [];
-
-    // Process and update the content one by one
-    for (const { suffix, width, tag } of resolutions) {
-      const newKey = key.replace(orgSuffix, `${suffix}.`).replace(/\.[^.]+$/, '.webp');
+      // Process and update the content
       const resizedImageBuffer = await image.resize({ width }).rotate().toFormat('webp').toBuffer();
       const resizedImage = sharp(resizedImageBuffer);
       const resizedImageMetadata = await resizedImage.metadata();

@@ -4,6 +4,7 @@
             "*"
         ],
         "AllowedMethods": [
+            "POST",
             "PUT",
             "GET"
         ],
@@ -12,7 +13,9 @@
             "https://myreportapp.com",
             "https://myreport.app"
         ],
-        "ExposeHeaders": [],
+        "ExposeHeaders": [
+            "ETag"
+        ],
         "MaxAgeSeconds": 3000
     }
 ]
