@@ -1,5 +1,5 @@
 /**
- * @version: 3rd version
+ * @version: 8th version
  * 1-   Create `-xs` to `-xl` images immediately in S3 by visiting a `-org` file, and later process and update their content.
  * 2-   Implement the "Update S3 Object Metadata" for all images, including the `-org` image, to detect their processing status.
  */
@@ -80,7 +80,7 @@ export const handler = async (event) => {
     
     // Get the original image data
     const originalImage = await S3.getObject({ Bucket: bucketName, Key: key }).promise();
-    const image = sharp(originalImage.Body);
+    let image = sharp(originalImage.Body);
 
     // Get existing tags
     const tags = await S3.getObjectTagging({ Bucket: bucketName, Key: key }).promise();
@@ -89,52 +89,57 @@ export const handler = async (event) => {
     // Process and update the content one by one
     for (const { suffix, width, tag } of resolutions) {
       const newKey = key.replace(orgSuffix, `${suffix}.`).replace(/\.[^.]+$/, '.webp');
-      const resizedImageBuffer = await image.resize({ width }).rotate().toFormat('webp').toBuffer();
-      const resizedImage = sharp(resizedImageBuffer);
-      const resizedImageMetadata = await resizedImage.metadata();
-
-      // Filter metadata to include only relevant fields
-      const metadataFields = ['width', 'height', 'size', 'orientation', 'channels', 'space'];
-      const metadataStrings = metadataFields.reduce((acc, field) => {
-        if (resizedImageMetadata[field] !== undefined) {
-          acc[field] = String(resizedImageMetadata[field]);
-        }
-        return acc;
-      }, {});
-
-      // Create new tags array and add relevant metadata as tags
-      const newTags = [
-        ...existingTags,
-        { Key: 'resolution', Value: tag },
-        { Key: 'org-image-key', Value: key }
-      ];
-
-      // Add only the necessary metadata to tags
-      Object.entries(metadataStrings).forEach(([metaKey, metaValue]) => {
-        if (newTags.length < 10) {
-          newTags.push({ Key: metaKey, Value: metaValue });
-        }
-      });
-
-      await S3.putObject({
-        Bucket: bucketName,
-        Key: newKey,
-        Body: resizedImageBuffer,
-        ContentType: 'image/webp',
-        Metadata: {
-          ...userDefinedMetadata,
-          status: 'completed',
-          resolution: tag,
-          'org-image-key': key,
-          ...metadataStrings,
-        }
-      }).promise();
-
-      await S3.putObjectTagging({
-        Bucket: bucketName,
-        Key: newKey,
-        Tagging: { TagSet: newTags }
-      }).promise();
+      try {
+        const resizedImageBuffer = await image.resize({ width }).rotate().toFormat('webp').toBuffer();
+        const resizedImage = sharp(resizedImageBuffer);
+        const resizedImageMetadata = await resizedImage.metadata();
+  
+        // Filter metadata to include only relevant fields
+        const metadataFields = ['width', 'height', 'size', 'orientation', 'channels', 'space'];
+        const metadataStrings = metadataFields.reduce((acc, field) => {
+          if (resizedImageMetadata[field] !== undefined) {
+            acc[field] = String(resizedImageMetadata[field]);
+          }
+          return acc;
+        }, {});
+  
+        // Create new tags array and add relevant metadata as tags
+        const newTags = [
+          ...existingTags,
+          { Key: 'resolution', Value: tag },
+          { Key: 'org-image-key', Value: key }
+        ];
+  
+        // Add only the necessary metadata to tags
+        Object.entries(metadataStrings).forEach(([metaKey, metaValue]) => {
+          if (newTags.length < 10) {
+            newTags.push({ Key: metaKey, Value: metaValue });
+          }
+        });
+  
+        await S3.putObject({
+          Bucket: bucketName,
+          Key: newKey,
+          Body: resizedImageBuffer,
+          ContentType: 'image/webp',
+          Metadata: {
+            ...userDefinedMetadata,
+            status: 'completed',
+            resolution: tag,
+            'org-image-key': key,
+            ...metadataStrings,
+          }
+        }).promise();
+  
+        await S3.putObjectTagging({
+          Bucket: bucketName,
+          Key: newKey,
+          Tagging: { TagSet: newTags }
+        }).promise();
+      } catch (err) {
+        console.error(`Error processing ${newKey}:`, err);
+        continue;
+      }
     }
 
     // Update metadata for the original image to completed
